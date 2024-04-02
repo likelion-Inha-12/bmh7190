@@ -1,0 +1,11 @@
+# 가상환경 파일숨기기
+/seminarenv
+
+# __pycache__ 숨기기
+__pycache__
+
+#migrations 숨기기
+migrations
+
+db.sqlite3
+manage.py
