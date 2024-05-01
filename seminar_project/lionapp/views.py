@@ -63,7 +63,7 @@ def like_post(request, user_id, post_id):
     # 사용자가 좋아요를 남기지 않았다면 / UserPost를 통해 좋아요라는 객체를 생성
     like = UserPost.objects.create(user_id = user_id, post_id = post_id)
 
-    return JsonResponse({'message' : '좋아요가 눌렸습니다.'}, status = 204)
+    return JsonResponse({'message' : '좋아요가 눌렸습니다.'}, status = 200)
 
 # 심화과제 2
 def like_count(request, post_id):
