@@ -1,8 +1,12 @@
 import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-
 from .models import *
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.decorators import api_view
+from .serializers import PostSerializer
+from util.views import api_response
 
 def create_post(request):
 
@@ -19,7 +23,17 @@ def create_post(request):
         post.save()
         return JsonResponse({'message':'success'})
     return JsonResponse({'message':'POST 요청만 허용됩니다.'})
-    
+
+@api_view(['POST'])
+def create_post_v2(request):
+    post = Post(
+        title = request.data.get('title'),
+        content = request.data.get('content')
+    )
+    post.save()
+
+    message = f"id: {post.pk}번 포스트 생성 성공"
+    return api_response(data = None, message = message, status = status.HTTP_201_CREATED)    
 
 
 def get_post(request, pk):
@@ -45,6 +59,27 @@ def delete_post(request, pk):
         }
         return JsonResponse(data, status = 200)
     return JsonResponse({'message':'DELETE 요청만 허용됩니다.'})
+
+class PostApiView(APIView):
+
+    def get_object(self, pk):
+        post = get_object_or_404(Post, pk=pk)
+        return post
+
+    def get(self, request, pk):
+        post = self.get_object(pk)
+
+        postSerializer = PostSerializer(post)
+        message = f"id: {post.pk}번 포스트 조회 성공"
+        return api_response(data = postSerializer.data, message = message, status = status.HTTP_200_OK)
+    
+    def delete(self, request, pk):
+        post = self.get_object(pk)
+        post.delete()
+        
+        message = f"id: {pk}번 포스트 삭제 성공"
+        return api_response(data=None, message = message, status = status.HTTP_200_OK)
+    
 
 # 심화과제 1
 def like_post(request, user_id, post_id):
@@ -86,3 +121,4 @@ def sort_posts(request):
     post_list = [{'title': post.title, 'content': post.content, 'author': post.author.name, 'comment_count': post.comment_count} for post in sorted_posts]
     
     return JsonResponse({'comment_list': post_list})
+
