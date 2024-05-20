@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-d0&6b1vpzh8uvj!1l2%sum5#p97-+apk41dg$9pb48%o0a7d#%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['15.164.190.10','http://likelion12.r-e.kr/']
+ALLOWED_HOSTS = ['15.164.190.10','likelion12.r-e.kr']
 
 
 # Application definition
@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.security.SecurityMiddleware',    
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
