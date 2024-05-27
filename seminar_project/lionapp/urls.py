@@ -14,6 +14,7 @@ urlpatterns = [
     path('sortpost/',views.sort_posts),
     # DRF url
     path('v2/post/<int:pk>',views.PostApiView.as_view()),
-    path('v2/post',views.create_post_v2)
+    path('v2/post',views.create_post_v2),
+    path('', views.IndexView.as_view(), name='index'),
 
 ]

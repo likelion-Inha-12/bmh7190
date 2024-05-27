@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-
+from datetime import timedelta
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,16 +26,22 @@ SECRET_KEY = 'django-insecure-d0&6b1vpzh8uvj!1l2%sum5#p97-+apk41dg$9pb48%o0a7d#%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['15.164.190.10','likelion12.r-e.kr']
+ALLOWED_HOSTS = ['15.164.190.10','likelion12.r-e.kr','127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    # my app
     'lionapp',
     'util',
+    'users',
+    # third party app
+    'drf_yasg',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
+    # basic app
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -92,19 +99,45 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        # 사용자의 아이디와 유사한 비밀번호를 허용하지 않음
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        # 비밀번호가 설정된 길이보다 짧은지 검사
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        # 널리 사용되지 않은 비밀번호는 거부
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        # 비밀번호에 숫자 포함되어 있는지 확인하며, 숫자를 사용하도록 유도
     },
 ]
 
+AUTH_USER_MODEL = 'users.User'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',  # 인증된 요청인지 확인
+        #'rest_framework.permissions.AllowAny',  # 누구나 접근 가능 
+				# (기본적으로 누구나 접근 가능하게 설정하고, 인증된 요청인지 확인하는 api를 따로 지정하게 하려면 
+				# 이 옵션을 위의 옵션 대신 켜주어도 됩니다!)
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT를 통한 인증방식 사용
+    ),
+}
+
+REST_USE_JWT = True
+
+SIMPLE_JWT = {
+    'SIGNING_KEY': 'hellolikelionhellolikelion',
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -121,6 +154,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -152,5 +186,20 @@ CORS_ALLOW_HEADERS = [  # 허용할 헤더
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'https://likelion12.r-e.kr/',
+    'https://likelion12.r-e.kr',
 ]
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'BearerAuth': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': "JWT Token"
+        }
+    },
+    'SECURITY_REQUIREMENTS': [{
+        'BearerAuth': []
+    }]
+}

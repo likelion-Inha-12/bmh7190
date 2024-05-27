@@ -7,6 +7,14 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from .serializers import PostSerializer
 from util.views import api_response
+from drf_yasg.utils import swagger_auto_schema
+
+
+
+from rest_framework.decorators import authentication_classes
+from rest_framework_simplejwt.authentication import JWTAuthentication 
+
+
 
 def create_post(request):
 
@@ -23,18 +31,6 @@ def create_post(request):
         post.save()
         return JsonResponse({'message':'success'})
     return JsonResponse({'message':'POST 요청만 허용됩니다.'})
-
-@api_view(['POST'])
-def create_post_v2(request):
-    post = Post(
-        title = request.data.get('title'),
-        content = request.data.get('content')
-    )
-    post.save()
-
-    message = f"id: {post.pk}번 포스트 생성 성공"
-    return api_response(data = None, message = message, status = status.HTTP_201_CREATED)    
-
 
 def get_post(request, pk):
     post = get_object_or_404(Post, pk=pk)
@@ -59,27 +55,6 @@ def delete_post(request, pk):
         }
         return JsonResponse(data, status = 200)
     return JsonResponse({'message':'DELETE 요청만 허용됩니다.'})
-
-class PostApiView(APIView):
-
-    def get_object(self, pk):
-        post = get_object_or_404(Post, pk=pk)
-        return post
-
-    def get(self, request, pk):
-        post = self.get_object(pk)
-
-        postSerializer = PostSerializer(post)
-        message = f"id: {post.pk}번 포스트 조회 성공"
-        return api_response(data = postSerializer.data, message = message, status = status.HTTP_200_OK)
-    
-    def delete(self, request, pk):
-        post = self.get_object(pk)
-        post.delete()
-        
-        message = f"id: {pk}번 포스트 삭제 성공"
-        return api_response(data=None, message = message, status = status.HTTP_200_OK)
-    
 
 # 심화과제 1
 def like_post(request, user_id, post_id):
@@ -122,3 +97,57 @@ def sort_posts(request):
     
     return JsonResponse({'comment_list': post_list})
 
+
+@authentication_classes([JWTAuthentication])
+@swagger_auto_schema(
+        method="POST", 
+        tags=["첫번째 view"],
+        operation_summary="post 생성", 
+        operation_description="post를 생성합니다.",
+        responses={
+            201: '201에 대한 설명', 
+            400: '400에 대한 설명',
+            500: '500에 대한 설명'
+        }
+)
+
+
+     
+@authentication_classes([JWTAuthentication])
+@api_view(['POST'])
+def create_post_v2(request):
+    post = Post(
+        title = request.data.get('title'),
+        content = request.data.get('content')
+    )
+    post.save()
+
+    message = f"id: {post.pk}번 포스트 생성 성공"
+    return api_response(data = None, message = message, status = status.HTTP_201_CREATED)    
+
+
+class IndexView(APIView):
+	def post(self, request):
+			return HttpResponse("Post method")
+	def get(self, request):
+		    return HttpResponse("Get method")
+      
+class PostApiView(APIView):
+
+    def get_object(self, pk):
+        post = get_object_or_404(Post, pk=pk)
+        return post
+
+    def get(self, request, pk):
+        post = self.get_object(pk)
+
+        postSerializer = PostSerializer(post)
+        message = f"id: {post.pk}번 포스트 조회 성공"
+        return api_response(data = postSerializer.data, message = message, status = status.HTTP_200_OK)
+    
+    def delete(self, request, pk):
+        post = self.get_object(pk)
+        post.delete()
+        
+        message = f"id: {pk}번 포스트 삭제 성공"
+        return api_response(data=None, message = message, status = status.HTTP_200_OK)
